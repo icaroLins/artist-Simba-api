@@ -10,7 +10,7 @@ public class UserMapper {
     public User toEntity(UserRequest userRequest) {
         User user = new User();
         user.setUserEmail(userRequest.userEmail());
-        user.setUserPasseord_hash(userRequest.userPasseord_hash());
+        user.setUserPassword_hash(userRequest.userPassword_hash());
 
         return user;
     }
