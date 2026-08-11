@@ -1,5 +1,7 @@
 package com.icaro.simba_dj.service.email;
 
+import com.icaro.simba_dj.exception.ResourceNotFoundException;
+import com.icaro.simba_dj.exception.UnauthorizedException;
 import com.icaro.simba_dj.model.email.EmailVerificationToken;
 import com.icaro.simba_dj.model.users.User;
 import com.icaro.simba_dj.repository.email.EmailVerificationRepository;
@@ -30,13 +32,13 @@ public class EmailVerificationService {
     private String frontendUrl;
 
     private void sendVerificationEmail(String emailTo, String token) {
-        String verificationLink = frontendUrl + "/mail/api/verify-email?token=" + token;
+        String verificationLink = frontendUrl + "/verify-email/confirm?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("simba.manege@gmail.com");
         message.setTo(emailTo);
         message.setSubject("Simba - Email Verification");
-        message.setText("Simba -Click the link to confirm your registration: " + verificationLink);
+        message.setText("Simba - Click the link to confirm your registration: " + verificationLink);
 
         javaMailSender.send(message);
     }
@@ -58,10 +60,10 @@ public class EmailVerificationService {
 
     public void verifyToken(String token){
         EmailVerificationToken verificationToken = emailVerificationRepository.findByToken(token)
-                .orElseThrow(()-> new RuntimeException("Token not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Token not found"));
 
         if(verificationToken.isExpired()){
-            throw new RuntimeException("Token is expired");
+            throw new UnauthorizedException("Token is expired");
         }
 
         User user = verificationToken.getUser();
