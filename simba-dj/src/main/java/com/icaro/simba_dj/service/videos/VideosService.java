@@ -27,9 +27,9 @@ public class VideosService {
     private VideoMapper videoMapper;
 
     @Transactional
-    public VideoResponse creaarVideo(VideoRequest videoRequest, User user) {
+    public VideoResponse createVideo(VideoRequest videoRequest, User user) {
         Profile profile = profileRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         Video video = videoMapper.toEntity(videoRequest);
         video.setProfile(profile);
@@ -40,11 +40,11 @@ public class VideosService {
     @Transactional
     public VideoResponse updateVideo(VideoRequest videoRequest, User user, UUID videoId) {
         Profile profile = profileRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         Video video = videoRepository
                 .findByProfileProfileIdAndVideoStatusAndVideoId(profile.getProfileId(), ContentStatus.ACTIVE, videoId)
-                .orElseThrow(() -> new ResourceNotFoundException("video not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found"));
 
         if(videoRequest.title() != null){
             video.setTitle(videoRequest.title());
@@ -65,11 +65,11 @@ public class VideosService {
     @Transactional
     public void deleteVideo(UUID videoId, User user) {
         Profile profile = profileRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         Video video = videoRepository
                 .findByProfileProfileIdAndVideoStatusAndVideoId(profile.getProfileId(), ContentStatus.ACTIVE, videoId)
-                .orElseThrow(() -> new ResourceNotFoundException("video not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found"));
 
         video.setVideoStatus(ContentStatus.INACTIVE);
         videoRepository.save(video);
@@ -78,7 +78,7 @@ public class VideosService {
     @Transactional
     public List<VideoResponse> listVideos(User user){
         Profile profile = profileRepository.findByUserUserId(user.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         return videoRepository.findByProfileProfileIdAndVideoStatus(profile.getProfileId(), ContentStatus.ACTIVE)
                 .stream()
