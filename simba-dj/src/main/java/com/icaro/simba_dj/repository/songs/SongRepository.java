@@ -13,5 +13,5 @@ import java.util.UUID;
 public interface SongRepository extends JpaRepository<Song, UUID> {
     List<Song> findByProfileProfileIdAndSongStatus(UUID profileId, ContentStatus songStatus);
     Optional<Song> findBySongIdAndProfileProfileIdAndSongStatus(UUID songId, UUID profileId, ContentStatus songStatus);
-
+    boolean existsByShortlink(String shortlink);
 }
