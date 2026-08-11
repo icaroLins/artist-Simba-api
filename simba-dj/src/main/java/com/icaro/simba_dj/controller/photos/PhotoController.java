@@ -2,7 +2,6 @@ package com.icaro.simba_dj.controller.photos;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icaro.simba_dj.dto.request.photos.PhotoRequest;
-import com.icaro.simba_dj.dto.request.profiles.ProfileRequest;
 import com.icaro.simba_dj.dto.response.photos.PhotoResponse;
 import com.icaro.simba_dj.model.users.User;
 import com.icaro.simba_dj.service.photos.PhotoService;
@@ -36,11 +35,12 @@ public class PhotoController {
     }
 
     @PatchMapping(value = "/update/{photoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updatePhoto(@RequestPart PhotoRequest photoRequest,
+    public ResponseEntity<?> updatePhoto(@RequestPart("photo") String photoJson,
                                          @AuthenticationPrincipal(expression = "user") User user,
-                                         @RequestPart MultipartFile file,
+                                         @RequestPart(required = false) MultipartFile file,
                                          @PathVariable UUID photoId) throws IOException {
-
+        ObjectMapper mapper = new ObjectMapper();
+        PhotoRequest photoRequest = mapper.readValue(photoJson, PhotoRequest.class);
         PhotoResponse photoResponse = photoService.updatePhoto(photoRequest,user,photoId,file);
         return new ResponseEntity<>(photoResponse, HttpStatus.OK);
     }
