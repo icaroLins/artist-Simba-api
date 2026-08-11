@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
+
+import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
 
 @Service
 public class SongService {
@@ -27,6 +30,9 @@ public class SongService {
     @Autowired
     private ProfileRepository profileRepository;
 
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     @Transactional
     public SongResponse createSong(SongRequest songRequest, UUID userId) {
         Profile profile = profileRepository.findByUserUserId(userId)
@@ -34,18 +40,8 @@ public class SongService {
 
         Song song = songsMapper.toEntity(songRequest);
         song.setProfile(profile);
+        song.setShortlink(generateUniqueShortlink());
 
-        List<SongPlatformLink> links = songRequest.platformLinks().stream()
-                .map(dto -> {
-                    SongPlatformLink link = new SongPlatformLink();
-                    link.setPlatform(dto.platform());
-                    link.setExternalLink(dto.externalLink());
-                    link.setSong(song);
-                    return link;
-                })
-                .toList();
-
-        song.setPlatformLinks(links);
         return SongsMapper.toResponse(songRepository.save(song));
     }
 
@@ -106,6 +102,22 @@ public class SongService {
 
         song.setSongStatus(ContentStatus.INACTIVE);
         songRepository.save(song);
+    }
+
+    private String generateUniqueShortlink() {
+        String shortlink;
+        do {
+            shortlink = generateRandomCode(8);
+        } while (songRepository.existsByShortlink(shortlink));
+        return shortlink;
+    }
+
+    private String generateRandomCode(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
+        }
+        return sb.toString();
     }
 
 }
