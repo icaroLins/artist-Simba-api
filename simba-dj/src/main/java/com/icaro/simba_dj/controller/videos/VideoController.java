@@ -23,7 +23,7 @@ public class VideoController {
     @PostMapping("/create")
     public ResponseEntity<?> createVideo(@RequestBody VideoRequest videoRequest,
                                          @AuthenticationPrincipal(expression = "user") User user){
-        VideoResponse videoResponse = videosService.creaarVideo(videoRequest, user);
+        VideoResponse videoResponse = videosService.createVideo(videoRequest, user);
         return new ResponseEntity<>(videoResponse, HttpStatus.OK);
     }
 
@@ -36,13 +36,13 @@ public class VideoController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listVideos(@AuthenticationPrincipal User user){
+    public ResponseEntity<?> listVideos(@AuthenticationPrincipal(expression = "user") User user){
         List<VideoResponse> videoResponse = videosService.listVideos(user);
         return new ResponseEntity<>(videoResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{videoId}")
-    public ResponseEntity<?> deleteVideo(@PathVariable UUID videoId, @AuthenticationPrincipal User user){
+    public ResponseEntity<?> deleteVideo(@PathVariable UUID videoId, @AuthenticationPrincipal(expression = "user") User user){
         videosService.deleteVideo(videoId, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
