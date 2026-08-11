@@ -30,19 +30,19 @@ public class SongController {
     @PatchMapping("/update/{songId}")
     public ResponseEntity<?> updateSong(@RequestBody SongRequest songRequest,
                                         @PathVariable UUID songId,
-                                        @AuthenticationPrincipal User user){
+                                        @AuthenticationPrincipal(expression = "user") User user){
         SongResponse songResponse = songService.updateSong(songRequest, user.getUserId(), songId);
         return new  ResponseEntity<>(songResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteSong(@PathVariable UUID songId, @AuthenticationPrincipal User user){
-        songService.deleteSong(songId, user.getUserId());
+    @DeleteMapping("/delete/{songId}")
+    public ResponseEntity<?> deleteSong(@PathVariable UUID songId, @AuthenticationPrincipal(expression = "user") User user){
+        songService.deleteSong(user.getUserId(), songId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listSongs(@AuthenticationPrincipal User user){
+    public ResponseEntity<?> listSongs(@AuthenticationPrincipal(expression = "user") User user){
         List<SongResponse> songResponse = songService.getSong(user.getUserId());
         return new  ResponseEntity<>(songResponse, HttpStatus.OK);
     }
