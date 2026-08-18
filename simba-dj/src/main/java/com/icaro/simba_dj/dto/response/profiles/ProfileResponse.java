@@ -7,6 +7,7 @@ import java.util.UUID;
 public record ProfileResponse(
         UUID profileId,
         String profileNameArtist,
+        String profileShortlink,
         String profilePhotoUrl,
         String profileInstagramUrl,
         Role userRole,

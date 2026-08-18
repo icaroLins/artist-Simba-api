@@ -1,6 +1,5 @@
 package com.icaro.simba_dj.model.profiles;
 
-import com.icaro.simba_dj.model.plataformLink.SongPlatformLink;
 import com.icaro.simba_dj.model.songs.Song;
 import com.icaro.simba_dj.model.users.User;
 import jakarta.persistence.*;
@@ -23,6 +22,8 @@ public class Profile {
     @Column(nullable = false)
     private String profileNameArtist;
 
+    @Column(unique = true, length = 120)
+    private String profileShortlink;
 
     private String profilePhotoUrl;
 

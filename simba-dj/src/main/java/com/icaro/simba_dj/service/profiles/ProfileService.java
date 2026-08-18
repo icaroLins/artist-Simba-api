@@ -9,6 +9,7 @@ import com.icaro.simba_dj.model.profiles.Profile;
 import com.icaro.simba_dj.model.users.User;
 import com.icaro.simba_dj.repository.profiles.ProfileRepository;
 import com.icaro.simba_dj.service.image.ImageStorageService;
+import com.icaro.simba_dj.service.shared.ShortlinkUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,7 @@ public class ProfileService {
         }
 
         profile.setUser(user);
+        ensureProfileShortlink(profile);
         profileRepository.save(profile);
 
         return profileMapper.toResponse(profile);
@@ -66,6 +68,7 @@ public class ProfileService {
                 profile.setProfilePhotoUrl(imageUrl);
             }
 
+            ensureProfileShortlink(profile);
             profileRepository.save(profile);
             return profileMapper.toResponse(profile);
         }
@@ -75,6 +78,17 @@ public class ProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException(   "Profile not found"));
 
         return profileMapper.toResponse(profile);
+    }
+
+    private void ensureProfileShortlink(Profile profile) {
+        if (profile.getProfileShortlink() != null && !profile.getProfileShortlink().isBlank()) {
+            return;
+        }
+
+        profile.setProfileShortlink(ShortlinkUtil.generateUniqueShortlink(
+                profile.getProfileNameArtist(),
+                profileRepository::existsByProfileShortlink
+        ));
     }
 
 }
