@@ -48,11 +48,24 @@ public class UserService {
         User user = userRepository.findByUserEmail(loginRequest.email());
 
         if(user == null){
-            throw new UnauthorizedException("Invalid email or password.");
+            throw new UnauthorizedException(
+                    "INVALID_CREDENTIALS",
+                    "Invalid email or password."
+            );
         }
 
         if(!passwordEncoder.matches(loginRequest.password(), user.getUserPassword_hash())){
-            throw new UnauthorizedException("Invalid email or password.");
+            throw new UnauthorizedException(
+                    "INVALID_CREDENTIALS",
+                    "Invalid email or password."
+            );
+        }
+
+        if(!user.getEmailVerified()){
+            throw new UnauthorizedException(
+                    "EMAIL_NOT_VERIFIED",
+                    "Please verify your email before logging in."
+            );
         }
 
         TokenRequest tokenRequest = new TokenRequest(user.getUserEmail(), user.getUserId(), user.getUserRole());

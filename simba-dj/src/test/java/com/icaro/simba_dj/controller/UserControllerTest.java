@@ -1,5 +1,6 @@
 package com.icaro.simba_dj.controller;
 
+import com.icaro.simba_dj.support.AbstractIntegrationTest;
 import com.jayway.jsonpath.JsonPath;
 import com.icaro.simba_dj.controller.users.UserController;
 import com.icaro.simba_dj.model.users.User;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -24,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UserControllerTest {
+public class UserControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -112,10 +114,14 @@ public class UserControllerTest {
         String email = "login-sucesso@test.com";
         String password = "icaro123";
 
-        mockMvc.perform(post("/simba/create")
+      mockMvc.perform(post("/simba/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson(email, password)))
                 .andExpect(status().isOk());
+
+      User user = userRepository.findByUserEmail(email);
+      user.setEmailVerified(true);
+      userRepository.save(user);
 
         mockMvc.perform(post("/simba/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -247,29 +253,15 @@ public class UserControllerTest {
                 .andDo(print());
     }
 
-    private String userJson(String email, String password) throws Exception {
-        return """
-                {
-                  "userEmail": "%s",
-                  "userPassword_hash": "%s"
-                }
-                """.formatted(email, password);
-    }
-
-    private String loginJson(String email, String password) throws Exception {
-        return """
-                {
-                  "email": "%s",
-                  "password": "%s"
-                }
-                """.formatted(email, password);
-    }
-
-    private String createUserAndLogin(String email, String password) throws Exception {
+    protected String createUserAndLogin(String email, String password) throws Exception {
         mockMvc.perform(post("/simba/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson(email, password)))
                 .andExpect(status().isOk());
+
+        User user = userRepository.findByUserEmail(email);
+        user.setEmailVerified(true);
+        userRepository.save(user);
 
         MvcResult result = mockMvc.perform(post("/simba/login")
                         .contentType(MediaType.APPLICATION_JSON)

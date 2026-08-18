@@ -55,6 +55,8 @@ public class SecurityConfig {
                                 "/simba/login",
                                 "/mail/api/verify-email",
                                 "/mail/api/resend-verification",
+                                "/password/reset/**",
+                                "/public/producer/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -68,6 +70,7 @@ public class SecurityConfig {
                                     LocalDateTime.now(),
                                     HttpServletResponse.SC_UNAUTHORIZED,
                                     "Unauthorized",
+                                    "AUTHENTICATION_REQUIRED",
                                     "Authentication is required.",
                                     request.getRequestURI()
                             );

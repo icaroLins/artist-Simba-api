@@ -21,21 +21,31 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception,
             HttpServletRequest request
     ) {
+
         String message = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .findFirst()
-                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .map(fieldError ->
+                        fieldError.getField() + ": " + fieldError.getDefaultMessage()
+                )
                 .orElse("Dados invalidos");
 
-        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                message,
+                "VALIDATION_ERROR",
+                request
+        );
     }
 
     @ExceptionHandler(ForbiddenException.class)
@@ -43,23 +53,27 @@ public class GlobalExceptionHandler {
             ForbiddenException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage(), request);
+
+        return buildResponse(
+                HttpStatus.FORBIDDEN,
+                exception.getMessage(),
+                "FORBIDDEN",
+                request
+        );
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(
-            EmailAlreadyExistsException ex,
-            HttpServletRequest request) {
+            EmailAlreadyExistsException exception,
+            HttpServletRequest request
+    ) {
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                "Conflict",
-                ex.getMessage(),
-                request.getRequestURI()
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                "EMAIL_ALREADY_EXISTS",
+                request
         );
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -67,13 +81,21 @@ public class GlobalExceptionHandler {
             ConstraintViolationException exception,
             HttpServletRequest request
     ) {
+
         String message = exception.getConstraintViolations()
                 .stream()
                 .findFirst()
-                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                .map(violation ->
+                        violation.getPropertyPath() + ": " + violation.getMessage()
+                )
                 .orElse("Dados invalidos");
 
-        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                message,
+                "VALIDATION_ERROR",
+                request
+        );
     }
 
     @ExceptionHandler({
@@ -81,8 +103,17 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException.class,
             HttpRequestMethodNotSupportedException.class
     })
-    public ResponseEntity<ErrorResponse> handleBadRequest(Exception exception, HttpServletRequest request) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            Exception exception,
+            HttpServletRequest request
+    ) {
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                "BAD_REQUEST",
+                request
+        );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -90,7 +121,13 @@ public class GlobalExceptionHandler {
             AccessDeniedException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.FORBIDDEN, "Acesso negado", request);
+
+        return buildResponse(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado",
+                "FORBIDDEN",
+                request
+        );
     }
 
     @ExceptionHandler(BusinessException.class)
@@ -98,7 +135,13 @@ public class GlobalExceptionHandler {
             BusinessException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                "BUSINESS_ERROR",
+                request
+        );
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -106,7 +149,13 @@ public class GlobalExceptionHandler {
             ConflictException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                "CONFLICT",
+                request
+        );
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -114,7 +163,13 @@ public class GlobalExceptionHandler {
             ResourceNotFoundException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage(),
+                "RESOURCE_NOT_FOUND",
+                request
+        );
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -122,7 +177,19 @@ public class GlobalExceptionHandler {
             UnauthorizedException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                exception.getCode(),
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -130,45 +197,73 @@ public class GlobalExceptionHandler {
             RuntimeException exception,
             HttpServletRequest request
     ) {
-        log.error("RuntimeException em {}: ", request.getRequestURI(), exception);
-        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+
+        log.error(
+                "RuntimeException em {}: ",
+                request.getRequestURI(),
+                exception
+        );
+
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                "RUNTIME_ERROR",
+                request
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception exception, HttpServletRequest request) {
-        log.error("Exception em {}: ", request.getRequestURI(), exception);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno no servidor", request);
+    public ResponseEntity<ErrorResponse> handleException(
+            Exception exception,
+            HttpServletRequest request
+    ) {
+
+        log.error(
+                "Exception em {}: ",
+                request.getRequestURI(),
+                exception
+        );
+
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno no servidor",
+                "INTERNAL_SERVER_ERROR",
+                request
+        );
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(
-            MaxUploadSizeExceededException e,
-            HttpServletRequest request) {
+            MaxUploadSizeExceededException exception,
+            HttpServletRequest request
+    ) {
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.PAYLOAD_TOO_LARGE.value(),
-                HttpStatus.PAYLOAD_TOO_LARGE.getReasonPhrase(),
+        return buildResponse(
+                HttpStatus.PAYLOAD_TOO_LARGE,
                 "Arquivo excede o tamanho máximo permitido (10MB)",
-                request.getRequestURI()
+                "FILE_TOO_LARGE",
+                request
         );
-
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(error);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,
             String message,
+            String code,
             HttpServletRequest request
     ) {
+
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
                 status.getReasonPhrase(),
+                code,
                 message,
                 request.getRequestURI()
         );
 
-        return ResponseEntity.status(status).body(errorResponse);
+        return ResponseEntity
+                .status(status)
+                .body(errorResponse);
     }
 }

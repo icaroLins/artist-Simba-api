@@ -63,7 +63,10 @@ public class EmailVerificationService {
                 .orElseThrow(()-> new ResourceNotFoundException("Token not found"));
 
         if(verificationToken.isExpired()){
-            throw new UnauthorizedException("Token is expired");
+            throw new UnauthorizedException(
+                    "TOKEN_EXPIRED",
+                    "Token is expired"
+            );
         }
 
         User user = verificationToken.getUser();

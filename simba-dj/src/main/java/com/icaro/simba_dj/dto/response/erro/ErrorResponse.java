@@ -6,6 +6,7 @@ public record ErrorResponse(
         LocalDateTime timestamp,
         Integer status,
         String error,
+        String code,
         String message,
         String path
 ) {

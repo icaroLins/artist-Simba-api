@@ -61,7 +61,7 @@ public class EmailVerificationControllerTest extends AbstractIntegrationTest {
     @Test
     void shouldReturnUnauthorizedWhenVerifyEmailTokenExpired() throws Exception {
         String email = "verify-email-expired@test.com";
-        createUserAndLogin(email, "icaro123");
+        createUser(email, "icaro123");
 
         String token = "expired-token-123";
         createTokenForUser(email, token, LocalDateTime.now().minusMinutes(1));
@@ -92,7 +92,7 @@ public class EmailVerificationControllerTest extends AbstractIntegrationTest {
     @Test
     void shouldReturnSuccessWhenResendVerification() throws Exception {
         String email = "resend-verification-success@test.com";
-        createUserAndLogin(email, "icaro123");
+        createUser(email, "icaro123");
 
         mockMvc.perform(post("/mail/api/resend-verification")
                         .param("email", email))
@@ -117,7 +117,7 @@ public class EmailVerificationControllerTest extends AbstractIntegrationTest {
     @Test
     void shouldReturnBadRequestWhenResendVerificationEmailAlreadyVerified() throws Exception {
         String email = "resend-verification-already-verified@test.com";
-        createUserAndLogin(email, "icaro123");
+        createUser(email, "icaro123");
 
         User user = userRepository.findByUserEmail(email);
         user.setEmailVerified(true);
@@ -133,7 +133,7 @@ public class EmailVerificationControllerTest extends AbstractIntegrationTest {
     @Test
     void shouldReuseExistingTokenWhenResendVerificationCalledTwice() throws Exception {
         String email = "resend-verification-twice@test.com";
-        createUserAndLogin(email, "icaro123");
+        createUser(email, "icaro123");
 
         mockMvc.perform(post("/mail/api/resend-verification")
                         .param("email", email))
