@@ -207,12 +207,39 @@ public class AbstractIntegrationTest {
                 """.formatted(email, password);
     }
 
+    protected String createUserAndLoginNotEmailVerification(String email, String password) throws Exception {
+        mockMvc.perform(post("/simba/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson(email, password)))
+                .andExpect(status().isOk());
+
+        MvcResult result = mockMvc.perform(post("/simba/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJson(email, password)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.token");
+    }
+
+    protected MvcResult createUser(String email, String password) throws Exception {
+        return mockMvc.perform(post("/simba/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userJson(email, password)))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
 
     protected String createUserAndLogin(String email, String password) throws Exception {
         mockMvc.perform(post("/simba/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson(email, password)))
                 .andExpect(status().isOk());
+
+        User user = userRepository.findByUserEmail(email);
+        user.setEmailVerified(true);
+        userRepository.save(user);
 
         MvcResult result = mockMvc.perform(post("/simba/login")
                         .contentType(MediaType.APPLICATION_JSON)

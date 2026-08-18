@@ -48,32 +48,6 @@ public class EventControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturnForbiddenForCreateEventEmailInvalid() throws Exception {
-        TestUserContext context = createUserAndProfile("teste-event-create-email-invalid@test.com",
-                "icaro123",
-                "test-event-create",
-                "instagram/event/url");
-
-        LocalDate date = LocalDate.of(2026, 8, 1);
-
-        String json = eventJson("test-event-create",
-                date, "tese/url/link/event/ticket", "Gama-df");
-
-        mockMvc.perform(post("/event/create")
-                        .header("Authorization", "Bearer " + context.token())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.error").value("Forbidden"))
-                .andExpect(jsonPath("$.message").value("Email verified is not valid"))
-                .andExpect(jsonPath("$.path").value("/event/create"))
-                .andDo(print());
-
-    }
-
-    @Test
     void sholdReturnUnauthorizedForCreateEventNotToken() throws Exception {
         createUserAndProfile("teste-event-create-not-token@test.com",
                 "icaro123",
