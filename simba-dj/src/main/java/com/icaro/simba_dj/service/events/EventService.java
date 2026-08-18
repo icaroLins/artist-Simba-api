@@ -30,9 +30,6 @@ public class EventService {
     private ProfileRepository profileRepository;
 
     public EventResponse createEvent(EventRequest eventRequest, User user) {
-        if(!user.getEmailVerified()){
-            throw new ForbiddenException("Email verified is not valid");
-        }
 
         Optional<Profile> profile = profileRepository.findByUserUserId(user.getUserId());
 
