@@ -1,52 +1,80 @@
 # Simba DJ — Backend
 
-API REST do ecossistema **Simba DJ**, desenvolvida com Java e Spring Boot. O backend concentra autenticação, segurança, gerenciamento de usuários e perfis, publicação de conteúdos e os fluxos de verificação de e-mail e recuperação de senha.
+API REST do **Simba DJ**, uma plataforma para divulgação de produtores musicais e DJs, desenvolvida com Java 21 e Spring Boot. O backend centraliza a autenticação, a segurança, o gerenciamento de conteúdo e a disponibilização de perfis públicos de artistas.
+
+A aplicação utiliza PostgreSQL para persistência de dados, Spring Security com JWT para autenticação e autorização, Flyway para versionamento do banco de dados e Docker para execução em ambiente containerizado.
 
 ## Sobre o projeto
 
-O Simba DJ é uma plataforma para divulgação do trabalho de produtores musicais e DJs. Por meio dela, o produtor pode reunir músicas, vídeos, fotos, eventos e links externos em um perfil público acessível por shortlink.
+O Simba DJ surgiu com o objetivo de oferecer a produtores musicais uma plataforma própria para divulgar seus trabalhos, reunindo músicas, vídeos, fotos, eventos e links externos em um único perfil público, acessível por meio de um shortlink.
 
-Este repositório contém a camada de backend da aplicação, construída com foco em:
+O backend foi desenvolvido para atender tanto às operações administrativas e autenticadas quanto à consulta pública dos perfis dos artistas.
 
-- organização das APIs por domínio;
-- autenticação e autorização com JWT;
-- persistência de dados com PostgreSQL e JPA;
-- versionamento do banco de dados com Flyway;
-- validação dos dados de entrada;
-- tratamento centralizado de exceções;
-- documentação da API com Swagger/OpenAPI;
-- preparação para containerização e hospedagem em nuvem.
-
-## Tecnologias utilizadas
-
-- Java 21
-- Spring Boot 3.5.x
-- Spring Web
-- Spring Data JPA
-- Spring Security
-- Spring Validation
-- Spring Mail
-- Spring Cache
-- Flyway
-- PostgreSQL
-- JWT
-- Swagger / OpenAPI
-- Thymeleaf
-- Maven
+O projeto contempla regras de negócio, persistência relacional, validação de dados, tratamento de exceções, autenticação e integração com serviços de e-mail.
 
 ## Funcionalidades
 
-- Cadastro e autenticação de usuários
-- Consulta dos dados do usuário autenticado
-- Verificação de endereço de e-mail
-- Recuperação e redefinição de senha
-- Criação e gerenciamento de perfis
-- Gerenciamento de músicas e links para plataformas de streaming
-- Gerenciamento de vídeos
-- Gerenciamento de fotos
-- Gerenciamento de eventos e links para ingressos
-- Acesso público ao perfil do produtor por shortlink
-- Upload e armazenamento local de arquivos de mídia
+- **Autenticação e segurança:** cadastro, login e autorização de requisições utilizando JWT.
+- **Gerenciamento de usuários:** consulta dos dados do usuário autenticado e controle de acesso.
+- **Verificação de e-mail:** envio e validação de tokens para confirmação do endereço de e-mail.
+- **Recuperação de senha:** solicitação e redefinição de senha.
+- **Perfis de artistas:** criação, consulta e atualização de perfis.
+- **Gerenciamento de músicas:** cadastro e manutenção de músicas e links para plataformas de streaming.
+- **Gerenciamento de vídeos:** organização de vídeos e links externos.
+- **Gerenciamento de fotos:** cadastro e armazenamento de imagens.
+- **Gerenciamento de eventos:** publicação de eventos e links para ingressos.
+- **Perfil público:** consulta dos dados e conteúdos do produtor por shortlink.
+- **Upload de mídias:** armazenamento local de arquivos enviados à aplicação.
+
+## Tecnologias utilizadas
+
+| Tecnologia | Aplicação no projeto |
+| --- | --- |
+| Java 21 | Linguagem de programação |
+| Spring Boot 3.5.x | Estrutura principal da aplicação |
+| Spring Web | Desenvolvimento dos endpoints REST |
+| Spring Security | Autenticação e autorização |
+| JWT | Autenticação baseada em tokens |
+| Spring Data JPA | Persistência e acesso a dados |
+| Hibernate | Mapeamento objeto-relacional |
+| PostgreSQL | Banco de dados relacional |
+| Flyway | Versionamento do schema do banco |
+| Spring Validation | Validação de dados de entrada |
+| Spring Mail | Envio de e-mails transacionais |
+| Spring Cache | Recursos de cache |
+| Swagger / OpenAPI | Documentação interativa da API |
+| Thymeleaf | Recursos de templates do projeto |
+| Maven | Gerenciamento de dependências e build |
+| Docker | Execução em ambiente containerizado |
+
+## Arquitetura
+
+O backend segue uma arquitetura em camadas, com separação de responsabilidades entre a interface HTTP, as regras de negócio e a persistência de dados.
+
+```text
+src/main/java/com/icaro
+├── config/       # Configurações e infraestrutura
+├── controller/   # Endpoints e requisições HTTP
+├── dto/          # Objetos de entrada e saída
+├── exception/    # Exceções e tratamento de erros
+├── mapper/       # Conversão entre entidades e DTOs
+├── model/        # Entidades e modelos do domínio
+├── repository/   # Acesso e persistência de dados
+└── service/      # Regras de negócio
+```
+
+### Responsabilidades das camadas
+
+- **Controller:** recebe as requisições HTTP e coordena as respostas da API.
+- **Service:** concentra as regras de negócio e os fluxos da aplicação.
+- **Repository:** abstrai as operações de persistência por meio do Spring Data JPA.
+- **Model:** representa as entidades e os conceitos do domínio.
+- **DTO:** define os dados utilizados na comunicação com os clientes da API.
+- **Mapper:** centraliza as conversões entre objetos do domínio e DTOs.
+- **Exception:** organiza o tratamento de erros e as respostas de falha.
+- **Config:** reúne configurações de segurança, JWT, CORS e outros componentes de infraestrutura.
+
+Essa organização facilita a localização das responsabilidades e a manutenção dos diferentes recursos da aplicação.
 
 ## Principais recursos da API
 
@@ -58,166 +86,188 @@ Este repositório contém a camada de backend da aplicação, construída com fo
 | Vídeos | `/video` | Gerenciamento de vídeos |
 | Fotos | `/photo` | Gerenciamento de fotos |
 | Eventos | `/event` | Gerenciamento de eventos e ingressos |
-| Recuperação de senha | `/password/reset` | Solicitação e conclusão da redefinição de senha |
-| Verificação de e-mail | `/mail/api` | Envio e validação de tokens de verificação |
-| Página pública | `/public/producer` | Consulta pública do produtor por shortlink |
+| Recuperação de senha | `/password/reset` | Solicitação e redefinição de senha |
+| Verificação de e-mail | `/mail/api` | Fluxos de verificação de e-mail |
+| Perfil público | `/public/producer` | Consulta pública de produtores por shortlink |
 
-> Os endpoints protegidos exigem um token JWT válido no cabeçalho `Authorization`, utilizando o formato `Bearer <token>`.
+> As rotas acima representam os recursos principais. Os métodos HTTP, os parâmetros e as rotas específicas podem ser consultados na documentação OpenAPI.
 
-## Arquitetura
+### Autenticação
 
-O projeto utiliza uma arquitetura em camadas, separando as responsabilidades entre:
+Os endpoints protegidos utilizam JWT para autenticação. Após obter um token válido, o cliente deve enviá-lo no cabeçalho `Authorization`:
 
-```text
-src/main/java
-├── config       # Configurações de segurança, JWT, CORS e infraestrutura
-├── controller   # Recebimento das requisições HTTP
-├── dto          # Objetos de entrada e saída da API
-├── exception    # Exceções e tratamento global de erros
-├── mapper       # Conversão entre entidades e DTOs
-├── model        # Entidades e modelos do domínio
-├── repository   # Acesso e persistência dos dados
-└── service      # Regras de negócio da aplicação
+```http
+Authorization: Bearer <token>
 ```
 
-Essa separação facilita a manutenção, os testes e a evolução independente dos diferentes domínios do sistema.
+Os endpoints públicos, como os destinados à consulta dos perfis de artistas, podem ser acessados sem autenticação, conforme as regras de segurança configuradas na aplicação.
 
 ## Pré-requisitos
 
-Antes de executar o projeto, instale ou configure:
+Para executar o projeto localmente, você precisará de:
 
-- Java 21
-- PostgreSQL
-- Maven 3.9+ ou o Maven Wrapper incluído no repositório
-- Variáveis de ambiente da aplicação
-- Docker, opcionalmente, para executar o banco de dados local
+- Git
+- Docker
+- Docker Compose
+- Credenciais e variáveis de ambiente necessárias para a aplicação
 
-## Configuração do ambiente
+Java 21 e Maven são úteis para executar e desenvolver o backend diretamente na máquina. Quando a imagem Docker já inclui o ambiente necessário para a aplicação, não é preciso instalar o Java ou o Maven apenas para iniciar o container.
 
-Defina as seguintes variáveis de ambiente:
+## Executando com Docker
 
-| Variável | Descrição |
+A aplicação é executada em ambiente containerizado, facilitando a configuração e a inicialização do ambiente de desenvolvimento.
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/icaroLins/artist-Simba-api.git
+cd artist-Simba-api
+```
+
+### 2. Configure as variáveis de ambiente
+
+Configure as variáveis exigidas pela aplicação no ambiente Docker. Se o projeto utiliza um arquivo `.env`, preencha-o localmente conforme a configuração do Compose.
+
+| Variável | Finalidade |
 | --- | --- |
 | `DB_URL` | URL de conexão com o PostgreSQL |
 | `DB_USERNAME` | Usuário do banco de dados |
 | `DB_PASSWORD` | Senha do banco de dados |
-| `JWT_SECRET` | Chave utilizada para assinatura dos tokens JWT |
-| `MAIL_USERNAME` | Usuário da conta responsável pelo envio de e-mails |
+| `JWT_SECRET` | Chave de assinatura dos tokens JWT |
+| `MAIL_USERNAME` | Conta utilizada para envio de e-mails |
 | `MAIL_PASSWORD` | Senha ou senha de aplicativo da conta de e-mail |
 
-A URL do frontend, utilizada nos links enviados por e-mail, também deve ser configurada:
+Configure também a URL do frontend utilizada nos links enviados por e-mail:
 
 ```properties
 app.frontend-url=http://localhost:5173
 ```
 
-> Nunca envie senhas, chaves JWT ou outras credenciais reais para o repositório.
+Os nomes das variáveis devem corresponder aos definidos no projeto e no arquivo de configuração do Docker.
 
-## Execução local
+**Importante:** não versione arquivos `.env` com credenciais reais. Mantenha um `.env.example` com os nomes das variáveis e valores ilustrativos, sem segredos.
 
-### 1. Inicie o banco de dados
+### 3. Inicie a aplicação
 
-Caso o projeto possua um arquivo `compose.yaml`, o PostgreSQL pode ser iniciado com:
-
-```bash
-docker compose up -d
-```
-
-Também é possível utilizar uma instalação local do PostgreSQL.
-
-### 2. Configure as variáveis de ambiente
-
-Garanta que todas as variáveis obrigatórias estejam disponíveis no ambiente antes de iniciar a aplicação.
-
-### 3. Execute a aplicação
-
-No Linux ou macOS:
+Se o repositório contiver um `compose.yaml` ou `docker-compose.yml` configurado para a aplicação e suas dependências, execute na raiz do projeto:
 
 ```bash
-./mvnw spring-boot:run
+docker compose up --build -d
 ```
 
-No Windows:
+O comando solicita a construção das imagens necessárias e inicia os serviços em segundo plano.
 
-```powershell
-.\mvnw.cmd spring-boot:run
+Para acompanhar os logs:
+
+```bash
+docker compose logs -f
 ```
 
-Após a inicialização, a API ficará disponível na porta configurada no Spring Boot. Na configuração padrão:
+Para verificar os containers em execução:
+
+```bash
+docker compose ps
+```
+
+Para encerrar os serviços:
+
+```bash
+docker compose down
+```
+
+A inicialização do PostgreSQL, a configuração das variáveis e o mapeamento de portas devem seguir o arquivo Compose do repositório.
+
+### 4. Acesse a API
+
+Com a aplicação iniciada e a porta padrão do Spring Boot publicada pelo Docker, a API estará disponível em:
 
 ```text
 http://localhost:8080
 ```
 
+A porta efetivamente disponível depende do mapeamento definido no Docker Compose.
+
 ## Documentação da API
 
-Com a aplicação em execução, acesse a interface do Swagger:
+A aplicação utiliza Swagger/OpenAPI para documentar os endpoints e permitir a exploração interativa das operações disponíveis.
 
-```text
-http://localhost:8080/swagger-ui/index.html
-```
+Com o backend em execução, acesse:
 
-Caso o Spring Boot Actuator esteja habilitado, o estado da aplicação poderá ser consultado em:
+[Swagger UI — http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-```text
-http://localhost:8080/actuator/health
-```
-
-## Testes
-
-Para executar os testes automatizados:
-
-No Linux ou macOS:
-
-```bash
-./mvnw test
-```
-
-No Windows:
-
-```powershell
-.\mvnw.cmd test
-```
+Caso a documentação esteja habilitada no ambiente atual, será possível consultar os recursos, os parâmetros, os formatos de resposta e os requisitos de autenticação.
 
 ## Banco de dados e migrações
 
-O projeto utiliza PostgreSQL como banco de dados relacional e Flyway para controlar a evolução do schema.
+O PostgreSQL é utilizado para persistência dos dados, enquanto o Flyway gerencia as migrações e a evolução do schema.
 
-As novas alterações estruturais devem ser adicionadas como migrações versionadas no diretório:
+As migrações devem ser versionadas no diretório:
 
 ```text
-src/main/resources/db/migration
+src/main/resources/db/migration/
 ```
 
-Durante o desenvolvimento, a configuração `spring.jpa.hibernate.ddl-auto=update` pode auxiliar na evolução local. Para ambientes de homologação e produção, recomenda-se controlar o schema exclusivamente pelo Flyway e utilizar `ddl-auto=validate`.
+Cada alteração estrutural deve ser registrada em uma nova migração, preservando o histórico de mudanças do banco.
 
-## Upload de arquivos
+Em ambientes de produção, recomenda-se utilizar o Flyway como mecanismo de evolução do schema e configurar o Hibernate com `ddl-auto=validate`, evitando alterações estruturais automáticas no banco.
 
-Atualmente, imagens e outras mídias são armazenadas localmente no diretório:
+## Upload e armazenamento de arquivos
+
+As mídias enviadas à aplicação são armazenadas localmente no diretório:
 
 ```text
 uploads/
 ```
 
-Esse modelo é adequado para o ambiente de desenvolvimento. Em produção, o recomendado é utilizar armazenamento persistente, como um volume externo ou serviço de armazenamento de objetos.
+Como a aplicação é executada em Docker, é importante configurar um volume persistente para esse diretório caso os arquivos precisem sobreviver à recriação ou substituição do container.
 
-## Containerização e deploy
+Para um ambiente de produção, também pode ser considerada a adoção de armazenamento de objetos, dependendo dos requisitos de disponibilidade, escalabilidade e operação da plataforma.
 
-O projeto está preparado para avançar para a etapa de containerização e publicação em nuvem. As próximas melhorias previstas incluem:
+## Testes
 
-- criação do `Dockerfile` da aplicação;
-- configuração do ambiente com Docker Compose;
-- definição segura das variáveis de ambiente no provedor;
-- utilização de armazenamento persistente para os uploads;
-- publicação da API em um ambiente de produção;
-- inclusão do endereço público da API nesta documentação.
+Os testes automatizados podem ser executados pelo Maven Wrapper, caso ele esteja disponível no repositório.
+
+**Windows:**
+
+```powershell
+.\mvnw.cmd test
+```
+
+**Linux ou macOS:**
+
+```bash
+./mvnw test
+```
+
+Os testes ajudam a verificar o comportamento dos componentes e a reduzir regressões durante a evolução do sistema.
+
+## Segurança e configuração
+
+O projeto utiliza Spring Security e JWT para proteger os recursos autenticados. As credenciais de banco de dados, as chaves de assinatura e as credenciais de e-mail devem ser fornecidas por variáveis de ambiente ou por um mecanismo de gerenciamento de segredos apropriado.
+
+Antes de disponibilizar o sistema publicamente, é importante revisar:
+
+- a validade e a configuração da assinatura dos tokens JWT;
+- as regras de autorização de cada endpoint;
+- a proteção dos fluxos de verificação de e-mail e recuperação de senha;
+- a validação dos arquivos enviados e os limites de upload;
+- a configuração de CORS e HTTPS;
+- a persistência dos dados e dos arquivos;
+- o gerenciamento seguro de credenciais nos ambientes de execução.
 
 ## Status do projeto
 
-🚧 **Em desenvolvimento ativo.**
+**Em desenvolvimento.**
 
-O backend possui uma base funcional para autenticação, gerenciamento de conteúdo e disponibilização do perfil público, mas continua recebendo melhorias antes da publicação em produção.
+O Simba DJ possui uma base de backend para autenticação, gerenciamento de conteúdo e disponibilização de perfis públicos, com execução em ambiente Docker.
+
+A evolução do projeto contempla melhorias de segurança, testes, configuração de infraestrutura e preparação para disponibilização pública.
+
+## Repositórios
+
+- **Backend:** [artist-Simba-api](https://github.com/icaroLins/artist-Simba-api)
+- **Frontend:** [artist-Simba-Frontend](https://github.com/icaroLins/artist-Simba-Frontend)
 
 ## Licença
 
-Este projeto ainda não possui uma licença definida. Caso o repositório seja disponibilizado publicamente, adicione um arquivo `LICENSE` com os termos escolhidos.
+O projeto ainda não possui uma licença definida. Os termos de utilização e distribuição deverão ser estabelecidos em um arquivo `LICENSE`.
