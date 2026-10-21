@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,18 +16,23 @@ import java.time.LocalDateTime;
 public class User{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long userId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID userId;
 
     @Column(unique = true)
-    String userEmail;
+    private String userEmail;
 
-    String userPasseord_hash;
+    @Column(nullable = false)
+    private String userPassword_hash;
 
     @CreationTimestamp
             @Column(nullable = false,updatable = false)
-    LocalDateTime userCreatedAt;
+    private LocalDateTime userCreatedAt;
 
     @Column(nullable = false,updatable = false)
-    Role userRole =  Role.ADMIN;
+    @Enumerated(EnumType.STRING)
+    private Role userRole =  Role.ADMIN;
+
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
 }
